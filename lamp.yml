@@ -1,0 +1,38 @@
+---
+
+- name: Install LAMP Stack on server
+  hosts: localhost
+
+  connection: local
+
+  tasks:
+
+    - name: Add MariaDB repository
+      yum_repository:
+        name: mariadb
+        description: MariaDB
+        baseurl: http://yum.mariadb.org/10.4/centos7-amd64
+        gpgkey: https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
+        gpgcheck: true
+        file: MariaDB
+        enabled: true
+
+    - name: Install MariaDB server
+      yum:
+        name: [
+          'MariaDB-server',
+          'MariaDB-client'
+        ]
+        state: present
+
+    - name: Install Apache webserver
+      yum:
+        name: httpd
+        state: present
+
+    - name: Ensure all service is running
+      systemd:
+        name: "{{ item }}"
+        state: started
+        enabled: true
+      loop: ['mariadb', 'httpd']
